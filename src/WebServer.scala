@@ -1,7 +1,7 @@
 package qk
 
 object WebServer:
-  def paramsFrom(queryString: String) =
+  def paramMapFrom(queryString: String) =
     queryString
       .split("&")
       .toSeq
@@ -13,7 +13,7 @@ object WebServer:
       .view
       .mapValues(vs => vs.map(_._2))
       .toMap
-  end paramsFrom
+  end paramMapFrom
 
   val symbol = """^\p{Alpha}[\p{Alnum}_]*$""".r
   def isSymbol(s: String) = symbol.matches(s)
