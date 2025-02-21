@@ -4,29 +4,17 @@ import org.graalvm.polyglot.*
 import org.graalvm.polyglot.proxy.*
 
 object Javascript:
-  val symbol = """^\p{Alpha}[\p{Alnum}_]*$""".r
-  val quotes = """[\\'"]""".r
-
   @main
-  def doit() =
+  def main() =
     val queryString = "deptno=10&name=KING&name=O'HARA"
-    val paramMap = queryString
-      .split("&")
-      .toList
-      .map: p =>
-        val Array(name, value) = p.split("=")
-        name -> quotes.replaceAllIn(value, """\\$0""")
-      .filter(p => symbol.matches(p._1))
-      .groupBy(p => p._1)
-      .view
-      .mapValues(vs => vs.map(_._2))
+    val paramJsObj = paramsFrom(queryString)
       .toSeq
       .map: p =>
         val (name, value) = p
         s"${name}: ${value.map(v => s"'$v'").mkString("[", ", ", "]")}"
       .mkString("{\n  ", ",\n  ", "\n}")
     val jsCode = s"""
-      const paramValues = $paramMap;
+      const paramValues = $paramJsObj;
       function param(name) { return paramValues[name][0]; }
       function params(name) { return paramValues[name]; }
     """
@@ -40,4 +28,23 @@ object Javascript:
         names:  params('name').join(', ')
       })
     """))
+
+  def paramsFrom(queryString: String) =
+    queryString
+      .split("&")
+      .toSeq
+      .map: p =>
+        val Array(name, value) = p.split("=")
+        name -> escape(value)
+      .filter(p => isSymbol(p._1))
+      .groupBy(p => p._1)
+      .view
+      .mapValues(vs => vs.map(_._2))
+      .toMap
+
+  val symbol = """^\p{Alpha}[\p{Alnum}_]*$""".r
+  def isSymbol(s: String) = symbol.matches(s)
+
+  val quotes = """[\\'"]""".r
+  def escape(s: String) = quotes.replaceAllIn(s, """\\$0""")
 end Javascript
