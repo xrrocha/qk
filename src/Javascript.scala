@@ -9,13 +9,14 @@ object Javascript:
 
   @main
   def doit() =
-    val queryString = "p1=abc&p1=def&p2=o'hara"
+    val queryString = "deptno=10&name=KING&name=O'HARA"
     val paramMap = queryString
       .split("&")
       .toList
       .map: p =>
-        val List(name, value) = p.split("=").toList
+        val Array(name, value) = p.split("=")
         name -> quotes.replaceAllIn(value, """\\$0""")
+      .filter(p => symbol.matches(p._1))
       .groupBy(p => p._1)
       .view
       .mapValues(vs => vs.map(_._2))
@@ -24,7 +25,6 @@ object Javascript:
         val (name, value) = p
         s"${name}: ${value.map(v => s"'$v'").mkString("[", ", ", "]")}"
       .mkString("{\n  ", ",\n  ", "\n}")
-    println(paramMap)
     val jsCode = s"""
       const paramValues = $paramMap;
       function param(name) { return paramValues[name][0]; }
@@ -32,14 +32,12 @@ object Javascript:
     """
 
     val context = Context.create("js")
-
     val value = context.eval("js", jsCode)
 
     println(context.eval("js", """
-      console.log(param('p1'));
-      console.log(params('p1'));
-      console.log(param('p2'));
-      console.log(params('p2'));
-      "That's all I hafta say..."
+      ({
+        deptno: parseInt(param('deptno')),
+        names:  params('name').join(', ')
+      })
     """))
 end Javascript
