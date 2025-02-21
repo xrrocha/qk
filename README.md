@@ -1,6 +1,14 @@
+# QK: A Query Web Publisher
+
+A dead-simple way to publish your database query results on the web with
+(almost) no programming:
+
+```yaml
+# Build JS parameter object from request
 request: |
   ({ deptno: parseInt(param('deptno')) })
 
+# Run parameterized SQL query
 sql: |
   SELECT   e.empno,
            e.ename,
@@ -14,6 +22,7 @@ sql: |
   WHERE    e.deptno = :deptno
   ORDER BY empno
 
+# Render HTML fragment in Pug
 pug: |
   table(style='margin: 0 auto;')
       caption
@@ -36,3 +45,4 @@ pug: |
               td(style='text-align: right;') #{row.sal}
               td
                   a(href='emp.yml?empno=' + mgr) #{mgrName}
+```
