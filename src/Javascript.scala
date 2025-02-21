@@ -6,23 +6,24 @@ import org.graalvm.polyglot.proxy.*
 object Javascript:
   @main
   def main() =
-    val queryString = "deptno=10&name=KING&name=O'HARA"
+    val queryString = "deptno=0010&name=KING&name=O'HARA"
     val paramMap = paramsFrom(queryString)
 
-    val script = s"""
-      ({
+    val objScript = s"""({
         deptno: parseInt(param('deptno')),
         names:  params('name').join(', ')
-      })
-    """
+    })"""
 
-    val result = buildRequestObject(script, paramMap)
-    println(s"Result: $result")
+    val context = Context.create("js")
+    val result = buildReqObj(context, objScript, paramMap)
+    assert("""{deptno: 10, names: "KING, O'HARA"}""" == result.toString())
 
-  def buildRequestObject(
-    script: String,
+  def buildReqObj(
+    context: Context,
+    objScript: String,
     paramMap: Map[String, Seq[String]]
   ): Any =
+
     val paramsObj = paramMap
       .toSeq
       .map: p =>
@@ -30,15 +31,14 @@ object Javascript:
         s"${name}: ${value.map(v => s"'$v'").mkString("[", ", ", "]")}"
       .mkString("{\n  ", ",\n  ", "\n}")
 
-    val definitions = s"""
+    val paramDefs = s"""
       const paramValues = $paramsObj;
       function param(name) { return paramValues[name][0]; }
       function params(name) { return paramValues[name]; }
     """
 
-    val context = Context.create("js")
-    context.eval("js", s"$definitions\n$script")
-  end buildRequestObject
+    context.eval("js", s"$paramDefs\n$objScript")
+  end buildReqObj
 
   def paramsFrom(queryString: String) =
     queryString
