@@ -7,7 +7,7 @@ object WebServer:
       .toSeq
       .map: p =>
         val Array(name, value) = p.split("=")
-        name -> escape(value)
+        name -> value
       .filter(p => isSymbol(p._1))
       .groupBy(p => p._1)
       .view
@@ -17,7 +17,4 @@ object WebServer:
 
   val symbol = """^\p{Alpha}[\p{Alnum}_]*$""".r
   def isSymbol(s: String) = symbol.matches(s)
-
-  val quotes = """[\\'"]""".r
-  def escape(s: String) = quotes.replaceAllIn(s, """\\$0""")
 end WebServer

@@ -15,8 +15,12 @@ object Javascript:
     val paramsObj = paramMap
       .toSeq
       .map: p =>
-        val (name, value) = p
-        s"${name}: ${value.map(v => s"'$v'").mkString("[", ", ", "]")}"
+        val name = p._1
+        val value = p._2
+          .map(escape)
+          .map(v => s"'$v'")
+          .mkString("[", ", ", "]")
+        s"$name: $value"
       .mkString("{\n  ", ",\n  ", "\n}")
 
     val paramDefs = s"""
@@ -27,4 +31,7 @@ object Javascript:
 
     context.eval("js", s"$paramDefs\n$objScript")
   end buildReqObj
+
+  val quotes = """[\\'"]""".r
+  def escape(s: String) = quotes.replaceAllIn(s, """\\$0""")
 end Javascript
