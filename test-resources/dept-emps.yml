@@ -1,0 +1,37 @@
+request: |
+  ({ deptno: parseInt(param.deptno) })
+
+sql: |
+  SELECT   e.empno,
+           e.ename,
+           e.job,
+           TO_CHAR(e.hiredate, 'DD Mon YYYY') AS hiredate,
+           e.sal,
+           e.mgr,
+           m.ename AS mgrName
+  FROM     emp e
+           LEFT OUTER JOIN emp m ON e.mgr = m.empno
+  WHERE    e.deptno = :deptno
+  ORDER BY empno
+
+pug: |
+  table(style='margin: 0 auto;')
+      caption
+          span Employees
+          hr
+      tr
+          th Code
+          th Name
+          th Job
+          th Salary
+      for row in rows
+          tr
+              td
+                  a(href='emp.yml?empno=' + empno) #{empno}
+              td #{row.ename}
+              td #{row.job}
+              td #{row.hiredate}
+              td(style='text-align: right;') #{money(row.sal)}
+              td
+                  a(href='emp.yml?empno=' + mgr) #{mgrName}
+
