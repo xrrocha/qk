@@ -7,27 +7,38 @@ object Javascript:
   @main
   def main() =
     val queryString = "deptno=10&name=KING&name=O'HARA"
-    val paramJsObj = paramsFrom(queryString)
+    val paramMap = paramsFrom(queryString)
+
+    val script = s"""
+      ({
+        deptno: parseInt(param('deptno')),
+        names:  params('name').join(', ')
+      })
+    """
+
+    val result = buildRequestObject(script, paramMap)
+    println(s"Result: $result")
+
+  def buildRequestObject(
+    script: String,
+    paramMap: Map[String, Seq[String]]
+  ): Any =
+    val paramsObj = paramMap
       .toSeq
       .map: p =>
         val (name, value) = p
         s"${name}: ${value.map(v => s"'$v'").mkString("[", ", ", "]")}"
       .mkString("{\n  ", ",\n  ", "\n}")
-    val jsCode = s"""
-      const paramValues = $paramJsObj;
+
+    val definitions = s"""
+      const paramValues = $paramsObj;
       function param(name) { return paramValues[name][0]; }
       function params(name) { return paramValues[name]; }
     """
 
     val context = Context.create("js")
-    val value = context.eval("js", jsCode)
-
-    println(context.eval("js", """
-      ({
-        deptno: parseInt(param('deptno')),
-        names:  params('name').join(', ')
-      })
-    """))
+    context.eval("js", s"$definitions\n$script")
+  end buildRequestObject
 
   def paramsFrom(queryString: String) =
     queryString
@@ -41,6 +52,7 @@ object Javascript:
       .view
       .mapValues(vs => vs.map(_._2))
       .toMap
+  end paramsFrom
 
   val symbol = """^\p{Alpha}[\p{Alnum}_]*$""".r
   def isSymbol(s: String) = symbol.matches(s)
