@@ -20,3 +20,5 @@
 //> using dep org.graalvm.polyglot:polyglot:24.1.2
 //> using dep org.graalvm.polyglot:js:24.1.2
 //> using dep org.apache.commons:commons-dbcp2:2.13.0
+//> using dep de.neuland-bfi:pug4j:2.3.1
+//> using dep org.slf4j:slf4j-simple:2.0.16
