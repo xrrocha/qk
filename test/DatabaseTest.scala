@@ -132,7 +132,7 @@ class DatabaseTest extends munit.FunSuite:
     assert(result.isFailure)
     assertEquals(
       result.failed.get.getMessage(),
-      "requirement failed: Missing names: [empno, sal]"
+      "requirement failed: Missing parameter names: [empno, sal]"
     )
 
   def executeQuery(
