@@ -79,7 +79,7 @@ object Database:
         val missing = requiredNames -- params.keySet
         require(
           missing.isEmpty,
-          s"Missing names: ${missing.mkString("[", ", ", "]")}"
+          s"Missing parameter names: ${missing.mkString("[", ", ", "]")}"
         )
 
         (sql, paramNames.map(params))
