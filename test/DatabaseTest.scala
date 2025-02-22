@@ -1,5 +1,6 @@
 package qk
 
+import Utils.*
 import Database.executeQuery
 import scala.util.{Failure, Success, Try, Using}
 
@@ -121,9 +122,9 @@ class DatabaseTest extends munit.FunSuite:
           """
             SELECT *
             FROM   emp
-            WHERE  empno = :empno
+            WHERE  empno  = :empno
                OR  deptno = :deptno
-               OR  sal > :sal
+               OR  sal    > :sal
           """,
           Map("deptno" -> 10)
         )
@@ -140,11 +141,9 @@ class DatabaseTest extends munit.FunSuite:
   ): List[Map[String, Any | Null]] =
     val tryResult = Using(database.connect()): connection =>
       val result = connection.executeQuery(sql, params)
-      assert(result.isInstanceOf[Success[List[Map[String, Any | Null]]]])
+      assert(result.isSuccess)
       result.get
     tryResult.get
   end executeQuery
-
-  def normalizeSpace(s: String) = s.trim().split("\\s+").mkString(" ")
 
 end DatabaseTest
