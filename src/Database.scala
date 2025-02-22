@@ -74,13 +74,15 @@ object Database:
     ): Try[List[Map[String, Any | Null]]] =
       Try:
         val (sql, paramNames) = parseParameters(paramSql)
-        val expected = paramNames.toSet
+
+        val requiredNames = paramNames.toSet
+        val missing = requiredNames -- params.keySet
         require(
-          params.keySet == expected,
-          s"Missing names: ${(expected -- params.keySet).mkString("[", ", ", "]")}"
+          missing.isEmpty,
+          s"Missing names: ${missing.mkString("[", ", ", "]")}"
         )
-        val paramValues = paramNames.map(params)
-        (sql, paramValues)
+
+        (sql, paramNames.map(params))
       .flatMap: p =>
         val (sql, paramValues) = p
         conn.executeQuery(sql, paramValues)
