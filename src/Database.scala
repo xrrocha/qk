@@ -40,14 +40,6 @@ object Database:
   extension (conn: Connection)
 
     def executeQuery(
-        paramSql: String,
-        params: Map[String, Any | Null]
-    ): Try[List[Map[String, Any | Null]]] =
-      val (sql, paramNames) = parseParameters(paramSql)
-      val paramValues = paramNames.map(params)
-      executeQuery(sql, paramValues)
-
-    def executeQuery(
         sql: String,
         params: List[Any | Null] = List.empty
     ): Try[List[Map[String, Any | Null]]] =
@@ -74,5 +66,23 @@ object Database:
                   -> rs.getObject(i)
               .toMap
           .toList
+    end executeQuery
+
+    def executeQuery(
+        paramSql: String,
+        params: Map[String, Any | Null]
+    ): Try[List[Map[String, Any | Null]]] =
+      Try:
+        val (sql, paramNames) = parseParameters(paramSql)
+        val expected = paramNames.toSet
+        require(
+          params.keySet == expected,
+          s"Missing names: ${(expected -- params.keySet).mkString("[", ", ", "]")}"
+        )
+        val paramValues = paramNames.map(params)
+        (sql, paramValues)
+      .flatMap: p =>
+        val (sql, paramValues) = p
+        conn.executeQuery(sql, paramValues)
     end executeQuery
 end Database

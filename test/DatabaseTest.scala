@@ -1,7 +1,7 @@
 package qk
 
 import Database.executeQuery
-import scala.util.{Success, Try, Using}
+import scala.util.{Failure, Success, Try, Using}
 
 class DatabaseTest extends munit.FunSuite:
   val initScript = """
@@ -114,30 +114,48 @@ class DatabaseTest extends munit.FunSuite:
         List(Map("count" -> 5))
       )
 
-  test("Builds parameterized sql and parameter names"):
-    val (sql, paramNames) =
-      Database.parseParameters("""
-        SELECT *
+  test("Executes name-parameterized query"):
+
+    database.run: connection =>
+      val sql = """
+        SELECT COUNT(*) AS count
         FROM   emp
-        WHERE  empno = :empno
-           OR  deptno = :deptno
-           OR  empno != :deptno
-           OR  deptno != :empno
-      """)
+        WHERE  deptno = :deptno
+           OR  empno = :empno
+      """
+      val result = connection
+        .executeQuery(
+          sql,
+          Map[String, Any | Null](
+            "empno" -> 7839,
+            "deptno" -> 20
+          )
+        )
+        .get
+      assertEquals(result.size, 1)
+      assertEquals(
+        result,
+        List(Map("count" -> 5))
+      )
+
+  test("Validates param names in parameterized sql"):
+    val result = Using(database.connect()): connection =>
+      connection
+        .executeQuery(
+          """
+            SELECT *
+            FROM   emp
+            WHERE  empno = :empno
+               OR  deptno = :deptno
+               OR  sal > :sal
+          """,
+          Map("deptno" -> 10)
+        )
+        .get
+    assert(result.isFailure)
     assertEquals(
-      normalizeSpace(sql),
-      normalizeSpace("""
-          SELECT *
-          FROM   emp
-          WHERE  empno = ?
-            OR  deptno = ?
-            OR  empno != ?
-            OR  deptno != ?
-        """)
-    )
-    assertEquals(
-      paramNames,
-      List("empno", "deptno", "deptno", "empno")
+      result.failed.get.getMessage(),
+      "requirement failed: Missing names: [empno, sal]"
     )
 
   def executeQuery(
