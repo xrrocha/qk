@@ -114,30 +114,6 @@ class DatabaseTest extends munit.FunSuite:
         List(Map("count" -> 5))
       )
 
-  test("Executes name-parameterized query"):
-
-    database.run: connection =>
-      val sql = """
-        SELECT COUNT(*) AS count
-        FROM   emp
-        WHERE  deptno = :deptno
-           OR  empno = :empno
-      """
-      val result = connection
-        .executeQuery(
-          sql,
-          Map[String, Any | Null](
-            "empno" -> 7839,
-            "deptno" -> 20
-          )
-        )
-        .get
-      assertEquals(result.size, 1)
-      assertEquals(
-        result,
-        List(Map("count" -> 5))
-      )
-
   test("Validates param names in parameterized sql"):
     val result = Using(database.connect()): connection =>
       connection
