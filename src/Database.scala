@@ -31,7 +31,22 @@ case class Database(
 end Database
 
 object Database:
+
+  val parameterName = """:[_\p{IsLatin}][_\p{IsLatin}\d]+""".r
+  def parseParameters(sql: String): (String, List[String]) =
+    parameterName.replaceAllIn(sql, "?") ->
+      parameterName.findAllMatchIn(sql).map(p => p.matched.substring(1)).toList
+
   extension (conn: Connection)
+
+    def executeQuery(
+        paramSql: String,
+        params: Map[String, Any | Null]
+    ): Try[List[Map[String, Any | Null]]] =
+      val (sql, paramNames) = parseParameters(paramSql)
+      val paramValues = paramNames.map(params)
+      executeQuery(sql, paramValues)
+
     def executeQuery(
         sql: String,
         params: List[Any | Null] = List.empty
