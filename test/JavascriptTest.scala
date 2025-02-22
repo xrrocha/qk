@@ -7,7 +7,7 @@ class JavascriptTest extends munit.FunSuite:
 
     val paramMap = Map(
       "deptno" -> Seq("0010"),
-      "name"   -> Seq("KING", "O'HARA")
+      "name" -> Seq("KING", "O'HARA")
     )
 
     val objScript = s"""({
@@ -22,4 +22,3 @@ class JavascriptTest extends munit.FunSuite:
       result.toString(),
       """{deptno: 10, names: "KING, O'HARA"}"""
     )
-  

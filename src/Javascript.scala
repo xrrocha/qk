@@ -7,13 +7,12 @@ object Javascript:
   def createContext(): Context = Context.create("js")
 
   def buildReqObj(
-    context: Context,
-    objScript: String,
-    paramMap: Map[String, Seq[String]]
+      context: Context,
+      objScript: String,
+      paramMap: Map[String, Seq[String]]
   ): Any =
 
-    val paramsObj = paramMap
-      .toSeq
+    val paramsObj = paramMap.toSeq
       .map: p =>
         val name = p._1
         val value = p._2

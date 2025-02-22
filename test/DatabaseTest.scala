@@ -47,9 +47,9 @@ class DatabaseTest extends munit.FunSuite:
 
   val database = Database(
     driverClass = "org.h2.Driver",
-    url =         "jdbc:h2:mem:test",
-    userName =    "sa",
-    initScript =  Some(initScript)
+    url = "jdbc:h2:mem:test",
+    userName = "sa",
+    initScript = Some(initScript)
   )
 
   test("Executes parameterized query"):
@@ -61,8 +61,8 @@ class DatabaseTest extends munit.FunSuite:
     val result = executeQuery(sql, List(10))
     assertEquals(result.size, 1)
     assertEquals(
-      List(Map("count" -> 3)),
-      result
+      result,
+      List(Map("count" -> 3))
     )
 
   test("Executes non-parameterized query"):
@@ -73,13 +73,26 @@ class DatabaseTest extends munit.FunSuite:
     val result = executeQuery(sql)
     assertEquals(result.size, 1)
     assertEquals(
-      List(Map("count" -> 14)),
-      result
+      result,
+      List(Map("count" -> 14))
     )
 
+  test("Runs action given a connection"):
+    database.run: connection =>
+      val sql = """
+        SELECT COUNT(*) AS count
+        FROM   dept
+      """
+      val result = executeQuery(sql)
+      assertEquals(result.size, 1)
+      assertEquals(
+        result,
+        List(Map("count" -> 4))
+      )
+
   def executeQuery(
-    sql: String,
-    params: List[Any | Null] = List.empty
+      sql: String,
+      params: List[Any | Null] = List.empty
   ): List[Map[String, Any | Null]] =
     val tryResult = Using(database.connect()): connection =>
       val result = connection.executeQuery(sql, params)
@@ -87,4 +100,4 @@ class DatabaseTest extends munit.FunSuite:
       result.get
     tryResult.get
   end executeQuery
-end DatabaseTest  
+end DatabaseTest

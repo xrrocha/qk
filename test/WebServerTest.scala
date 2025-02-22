@@ -9,6 +9,6 @@ class WebServerTest extends munit.FunSuite:
       paramMap,
       Map(
         "deptno" -> Seq("0010"),
-        "name"   -> Seq("KING", "O'HARA")
+        "name" -> Seq("KING", "O'HARA")
       )
     )

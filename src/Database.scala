@@ -8,11 +8,11 @@ import scala.jdk.CollectionConverters.*
 import scala.util.{Try, Using}
 
 case class Database(
-  driverClass: String,
-  url:         String,
-  userName:    String,
-  password:    Option[String] = None,
-  initScript:  Option[String] = None
+    driverClass: String,
+    url: String,
+    userName: String,
+    password: Option[String] = None,
+    initScript: Option[String] = None
 ):
   lazy val dataSource =
     Class.forName(driverClass)
@@ -26,15 +26,16 @@ case class Database(
     ds
 
   def connect() = dataSource.getConnection()
+
+  def run[A](action: Connection => A): Try[A] = Using(connect())(action)
 end Database
 
 object Database:
-  extension(conn: Connection)
+  extension (conn: Connection)
     def executeQuery(
-      sql: String,
-      params: List[Any | Null] = List.empty
+        sql: String,
+        params: List[Any | Null] = List.empty
     ): Try[List[Map[String, Any | Null]]] =
-
       Using(conn.prepareStatement(sql)): ps =>
         val md = ps.getParameterMetaData()
         require(
@@ -46,8 +47,7 @@ object Database:
           val paramValue = params(i)
           if paramValue == null then
             ps.setNull(i + 1, md.getParameterType(i + 1))
-          else
-            ps.setObject(i + 1, paramValue)
+          else ps.setObject(i + 1, paramValue)
 
         LazyList
           .iterate(ps.executeQuery())(identity)
