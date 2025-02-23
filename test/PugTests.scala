@@ -7,6 +7,6 @@ class PugTest extends munit.FunSuite:
     val model = Map("name" -> "World")
     val result = Pug.render(template, name, model)
     assertEquals(
-        result,
-        "<h1>Hello World!</h1>"
+      result,
+      "<h1>Hello World!</h1>"
     )
