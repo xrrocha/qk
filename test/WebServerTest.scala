@@ -12,25 +12,24 @@ class WebServerTest extends munit.FunSuite:
   private val server = WebServer(port)
 
   override def beforeEach(context: BeforeEach): Unit =
-    println(s"Bijor: $context")
     server.start()
 
   override def afterEach(context: AfterEach): Unit =
-    println(s"Ajter: $context")
     server.stop()
 
   test("Runs server"):
     val resourceName = "qk.yml"
-    val result = URI(s"http://localhost:$port/$resourceName")
+    URI(s"http://localhost:$port/$resourceName")
       .toURL()
       .openConnection()
       .getInputStream()
       .let(Using(_)(_.readAllBytes()))
-    assert(result.isSuccess)
-    assertEquals(
-      result.get.length,
-      readResource(resourceName).get.length
-    )
+      .also: result =>
+        assert(result.isSuccess)
+        assertEquals(
+          result.get.length,
+          readResource(resourceName).get.length
+        )
 
   test("Builds param map from query string"):
     val queryString = "deptno=0010&name=KING&name=O'HARA"

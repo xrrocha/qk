@@ -14,139 +14,139 @@ object MimeTypes:
     "avif" -> "image/avif",
     // AVI: Audio Video Interleave
     "avi" -> "video/x-msvideo",
-      // Amazon Kindle eBook format
+    // Amazon Kindle eBook format
     "azw" -> "application/vnd.amazon.ebook",
-      // Any kind of binary data
+    // Any kind of binary data
     "bin" -> "application/octet-stream",
-      // Windows OS/2 Bitmap Graphics
+    // Windows OS/2 Bitmap Graphics
     "bmp" -> "image/bmp",
-      // BZip archive
+    // BZip archive
     "bz" -> "application/x-bzip",
-      // BZip2 archive
+    // BZip2 archive
     "bz2" -> "application/x-bzip2",
-      // CD audio
+    // CD audio
     "cda" -> "application/x-cdf",
-      // C-Shell script
+    // C-Shell script
     "csh" -> "application/x-csh",
-      // Cascading Style Sheets (CSS)
+    // Cascading Style Sheets (CSS)
     "css" -> "text/css",
-      // Comma-separated values (CSV)
+    // Comma-separated values (CSV)
     "csv" -> "text/csv",
-      // Microsoft Word
+    // Microsoft Word
     "doc" -> "application/msword",
-      // Microsoft Word (OpenXML)
+    // Microsoft Word (OpenXML)
     "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      // MS Embedded OpenType fonts
+    // MS Embedded OpenType fonts
     "eot" -> "application/vnd.ms-fontobject",
-      // Electronic publication (EPUB)
+    // Electronic publication (EPUB)
     "epub" -> "application/epub+zip",
-      // GZip Compressed Archive
+    // GZip Compressed Archive
     "gz" -> "application/gzip. Note, Windows and macOS upload .gz files with the non-standard MIME type application/x-gzip.",
-      // Graphics Interchange Format (GIF)
+    // Graphics Interchange Format (GIF)
     "gif" -> "image/gif",
-      // HyperText Markup Language (HTML)
+    // HyperText Markup Language (HTML)
     "htm, .html" -> "text/html",
-      // Icon format
+    // Icon format
     "ico" -> "image/vnd.microsoft.icon",
-      // iCalendar format
+    // iCalendar format
     "ics" -> "text/calendar",
-      // Java Archive (JAR)
+    // Java Archive (JAR)
     "jar" -> "application/java-archive",
-      // JPEG images
+    // JPEG images
     "jpeg, .jpg" -> "image/jpeg",
-      // JavaScript
+    // JavaScript
     "js" -> "text/javascript (Specifications: HTML and RFC 9239)",
-      // JSON format
+    // JSON format
     "json" -> "application/json",
-      // JSON-LD format
+    // JSON-LD format
     "jsonld" -> "application/ld+json",
-      // Musical Instrument Digital Interface (MIDI)
+    // Musical Instrument Digital Interface (MIDI)
     "mid, .midi" -> "audio/midi, audio/x-midi",
-      // JavaScript module
+    // JavaScript module
     "mjs" -> "text/javascript",
-      // MP3 audio
+    // MP3 audio
     "mp3" -> "audio/mpeg",
-      // MP4 video
+    // MP4 video
     "mp4" -> "video/mp4",
-      // MPEG Video
+    // MPEG Video
     "mpeg" -> "video/mpeg",
-      // Apple Installer Package
+    // Apple Installer Package
     "mpkg" -> "application/vnd.apple.installer+xml",
-      // OpenDocument presentation document
+    // OpenDocument presentation document
     "odp" -> "application/vnd.oasis.opendocument.presentation",
-      // OpenDocument spreadsheet document
+    // OpenDocument spreadsheet document
     "ods" -> "application/vnd.oasis.opendocument.spreadsheet",
-      // OpenDocument text document
+    // OpenDocument text document
     "odt" -> "application/vnd.oasis.opendocument.text",
-      // Ogg audio
+    // Ogg audio
     "oga" -> "audio/ogg",
-      // Ogg video
+    // Ogg video
     "ogv" -> "video/ogg",
-      // Ogg
+    // Ogg
     "ogx" -> "application/ogg",
-      // Opus audio in Ogg container
+    // Opus audio in Ogg container
     "opus" -> "audio/ogg",
-      // OpenType font
+    // OpenType font
     "otf" -> "font/otf",
-      // Portable Network Graphics
+    // Portable Network Graphics
     "png" -> "image/png",
-      // Adobe Portable Document Format (PDF)
+    // Adobe Portable Document Format (PDF)
     "pdf" -> "application/pdf",
-      // Hypertext Preprocessor (Personal Home Page)
+    // Hypertext Preprocessor (Personal Home Page)
     "php" -> "application/x-httpd-php",
-      // Microsoft PowerPoint
+    // Microsoft PowerPoint
     "ppt" -> "application/vnd.ms-powerpoint",
-      // Microsoft PowerPoint (OpenXML)
+    // Microsoft PowerPoint (OpenXML)
     "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      // RAR archive
+    // RAR archive
     "rar" -> "application/vnd.rar",
-      // Rich Text Format (RTF)
+    // Rich Text Format (RTF)
     "rtf" -> "application/rtf",
-      // Bourne shell script
+    // Bourne shell script
     "sh" -> "application/x-sh",
-      // Scalable Vector Graphics (SVG)
+    // Scalable Vector Graphics (SVG)
     "svg" -> "image/svg+xml",
-      // Tape Archive (TAR)
+    // Tape Archive (TAR)
     "tar" -> "application/x-tar",
-      // Tagged Image File Format (TIFF)
+    // Tagged Image File Format (TIFF)
     "tif, .tiff" -> "image/tiff",
-      // MPEG transport stream
+    // MPEG transport stream
     "ts" -> "video/mp2t",
-      // TrueType Font
+    // TrueType Font
     "ttf" -> "font/ttf",
-      // Text, (generally ASCII or ISO 8859-n)
+    // Text, (generally ASCII or ISO 8859-n)
     "txt" -> "text/plain",
-      // Microsoft Visio
+    // Microsoft Visio
     "vsd" -> "application/vnd.visio",
-      // Waveform Audio Format
+    // Waveform Audio Format
     "wav" -> "audio/wav",
-      // WEBM audio
+    // WEBM audio
     "weba" -> "audio/webm",
-      // WEBM video
+    // WEBM video
     "webm" -> "video/webm",
-      // WEBP image
+    // WEBP image
     "webp" -> "image/webp",
-      // Web Open Font Format (WOFF)
+    // Web Open Font Format (WOFF)
     "woff" -> "font/woff",
-      // Web Open Font Format (WOFF)
+    // Web Open Font Format (WOFF)
     "woff2" -> "font/woff2",
-      // XHTML
+    // XHTML
     "xhtml" -> "application/xhtml+xml",
-      // Microsoft Excel
+    // Microsoft Excel
     "xls" -> "application/vnd.ms-excel",
-      // Microsoft Excel (OpenXML)
+    // Microsoft Excel (OpenXML)
     "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      // XML
+    // XML
     "xml" -> "application/xml",
-      // XUL
+    // XUL
     "xul" -> "application/vnd.mozilla.xul+xml",
-      // ZIP archive
+    // ZIP archive
     "zip" -> "application/zip",
-      // 3GPP audio/video container
+    // 3GPP audio/video container
     "3gp" -> "video/3gpp; audio/3gpp if it doesn't contain video",
-      // 3GPP2 audio/video container
+    // 3GPP2 audio/video container
     "3g2" -> "video/3gpp2; audio/3gpp2 if it doesn't contain video",
-      // 7-zip archive
+    // 7-zip archive
     "7z" -> "application/x-7z-compressed"
   )
 
