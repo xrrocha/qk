@@ -9,9 +9,9 @@ import scala.jdk.CollectionConverters.*
 
 object Pug:
   def render(
-    templateText: String,
-    templateName: String,
-    model: Map[String, Any | Null]
+      templateText: String,
+      templateName: String,
+      model: Map[String, Any | Null]
   ): String =
     val config = PugConfiguration()
     config.setExpressionHandler(GraalJsExpressionHandler())

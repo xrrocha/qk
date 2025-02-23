@@ -1,5 +1,6 @@
 package qk
 
+import Utils.*
 import java.sql.Connection
 import java.sql.ResultSet
 import javax.sql.DataSource
@@ -15,15 +16,15 @@ case class Database(
     initScript: Option[String] = None
 ):
   lazy val dataSource =
-    Class.forName(driverClass)
-    val ds = BasicDataSource()
-    ds.setUrl(url)
-    ds.setUsername(userName)
-    password.foreach(ds.setPassword)
-    initScript.foreach: script =>
-      val steps = script.split(";\\s*\n").toList
-      ds.setConnectionInitSqls(steps.asJava)
-    ds
+    BasicDataSource()
+      .also: ds =>
+        Class.forName(driverClass)
+        ds.setUrl(url)
+        ds.setUsername(userName)
+        password.foreach(ds.setPassword)
+        initScript.foreach: script =>
+          val steps = script.split(";\\s*\n").toList
+          ds.setConnectionInitSqls(steps.asJava)
 
   def connect() = dataSource.getConnection()
 
