@@ -1,5 +1,5 @@
 port:           1960
-#extensions:     ["qk", "yml"]
+#indexFile:      index.html
 
 # database:
 #   className:    'org.h2.Driver'

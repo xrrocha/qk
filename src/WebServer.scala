@@ -7,13 +7,17 @@ import com.sun.net.httpserver.HttpServer
 import java.io.FileInputStream
 import java.net.InetSocketAddress
 import org.virtuslab.yaml.*
-import scala.util.Using
+import scala.util.{Failure, Success, Using}
 
 case class WebServer(
-    port: Int
-) derives YamlCodec:
+    port: Int,
+    indexFile: String = defaultIndex
+) extends HttpHandler
+    derives YamlCodec:
 
   private var server = createServer()
+
+  private val indexFiles = Set("", indexFile)
 
   def start() =
     server.start()
@@ -26,26 +30,82 @@ case class WebServer(
     HttpServer
       .create(new InetSocketAddress(port), 0)
       .also: s =>
-        s.createContext("/", QKHandler)
+        s.createContext("/", this)
         s.setExecutor(null)
+
+  override def handle(exchange: HttpExchange): Unit =
+    val path =
+      exchange
+        .getRequestURI()
+        .getPath()
+        .substring(1)
+        .let: value =>
+          if value == "" then indexFile
+          else value
+
+    val (bytes, mimeType, httpCode) =
+      getResource(path) match
+        case Some(bytes) =>
+          val mimeType = MimeTypes(extension(path))
+            .getOrElse("application/octet-stream")
+          (bytes, mimeType, 200)
+        case None =>
+          val errMsg = s"Not found: $path".getBytes()
+          (errMsg, "application/octet-stream", 404)
+
+    Using(exchange.getResponseBody()): out =>
+      exchange.sendResponseHeaders(httpCode, bytes.length)
+      out.write(bytes)
+      out.flush()
+  end handle
+
+  private val resources = collection.mutable
+    .Map[String, Array[Byte]]()
+    .also: _ =>
+      require(
+        getResource(indexFile).isDefined,
+        s"Can't read index file: $indexFile"
+      )
+
+  private def getResource(resourceName: String): Option[Array[Byte]] =
+    resources
+      .get(resourceName)
+      .orElse:
+        readResource(resourceName) match
+          case Success(bytes) =>
+            resources(resourceName) = bytes
+            Some(bytes)
+          case Failure(err) =>
+            log(s"Error getting resource '$resourceName': $err")
+            None
+  end getResource
+
+  def extension(filename: String): String =
+    filename.substring(filename.lastIndexOf('.') + 1)
+
+  // TODO
+  def log(msg: String) = println(msg)
 end WebServer
 
 object WebServer:
+  val defaultIndex = "index.html"
+
   @main
   def main(configFilename: String) =
     Using(FileInputStream(configFilename)):
       _.readAllBytes()
         .let(String(_, "UTF-8"))
         .let(_.as[WebServer])
+        .also(println)
         .also: result =>
           result match
             case Left(err) =>
-              println(s"Kaput: $err")
+              println(s"Error launching webserver: $err")
               sys.exit(1)
             case Right(webServer) =>
               webServer.start()
               println(
-                s"QK webserver listening on ${webServer.port}. Ctrl-C to stop"
+                s"QK listening on port ${webServer.port}. Ctrl-C to stop"
               )
               Runtime
                 .getRuntime()
@@ -53,6 +113,8 @@ object WebServer:
                   Thread: () =>
                     println("Shutting down...")
                     webServer.stop()
+
+  val defaultExtensions = Set("qk", "yml", "yaml")
 
   def paramMapFrom(queryString: String) =
     queryString
@@ -71,33 +133,3 @@ object WebServer:
   val symbol = """^\p{Alpha}[\p{Alnum}_]*$""".r
   def isSymbol(s: String) = symbol.matches(s)
 end WebServer
-
-object QKHandler extends HttpHandler:
-  def handle(exchange: HttpExchange): Unit =
-    exchange
-      .getRequestURI()
-      .getPath()
-      .also: path =>
-        path
-          .substring(1)
-          .let(readResource)
-          .map: response =>
-            path
-              .substring(path.lastIndexOf('.') + 1)
-              .let: ext =>
-                val contentType =
-                  MimeTypes(ext).getOrElse("application/octet-stream")
-                exchange.getResponseHeaders().set("Content-Type", contentType)
-                Using(exchange.getResponseBody()): out =>
-                  exchange.sendResponseHeaders(200, response.length)
-                  out.write(response)
-                  out.flush()
-          .getOrElse:
-            exchange.getResponseHeaders().set("Content-Type", "text/plain")
-            Using(exchange.getResponseBody()): out =>
-              val errMsg = "Not found: $path".getBytes()
-              exchange.sendResponseHeaders(404, errMsg.length)
-              out.write(errMsg)
-              out.flush()
-  end handle
-end QKHandler
