@@ -59,21 +59,28 @@ case class WebServer(
       out.flush()
   end handle
 
-  private val resources = collection.mutable
-    .Map[String, Array[Byte]]()
-    .also: _ =>
+  import collection.mutable.Map as MMap
+
+  private val resources = MMap[String, Array[Byte]]()
+    .also: mmap =>
       require(
-        getResource(indexFile).isDefined,
+        getResource(mmap, indexFile).isDefined,
         s"Can't read index file: $indexFile"
       )
 
   private def getResource(resourceName: String): Option[Array[Byte]] =
-    resources
+    getResource(resources, resourceName)
+
+  private def getResource(
+    mmap: MMap[String, Array[Byte]],
+    resourceName: String
+  ): Option[Array[Byte]] =
+    mmap
       .get(resourceName)
       .orElse:
         readResource(resourceName) match
           case Success(bytes) =>
-            resources(resourceName) = bytes
+            mmap(resourceName) = bytes
             Some(bytes)
           case Failure(err) =>
             log(s"Error getting resource '$resourceName': $err")
