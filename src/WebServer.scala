@@ -1,6 +1,7 @@
 package qk
 
 import Utils.*
+import collection.mutable.Map as MMap
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import com.sun.net.httpserver.HttpServer
@@ -8,6 +9,7 @@ import java.io.FileInputStream
 import java.net.InetSocketAddress
 import org.virtuslab.yaml.*
 import scala.util.{Failure, Success, Using}
+import scala.annotation.threadUnsafe
 
 case class WebServer(
     port: Int,
@@ -42,6 +44,12 @@ case class WebServer(
         .let: value =>
           if value == "" then indexFile
           else value
+    // Refuse to run on no indexFile present
+    if (path == indexFile && !resources.contains(indexFile)) then
+      require(
+        getResource(indexFile).isDefined,
+        s"Can't read index file '$indexFile'"
+      )
 
     val (bytes, mimeType, httpCode) =
       getResource(path) match
@@ -59,28 +67,17 @@ case class WebServer(
       out.flush()
   end handle
 
-  import collection.mutable.Map as MMap
-
   private val resources = MMap[String, Array[Byte]]()
-    .also: mmap =>
-      require(
-        getResource(mmap, indexFile).isDefined,
-        s"Can't read index file: $indexFile"
-      )
-
-  private def getResource(resourceName: String): Option[Array[Byte]] =
-    getResource(resources, resourceName)
 
   private def getResource(
-    mmap: MMap[String, Array[Byte]],
-    resourceName: String
+      resourceName: String
   ): Option[Array[Byte]] =
-    mmap
+    resources
       .get(resourceName)
       .orElse:
         readResource(resourceName) match
           case Success(bytes) =>
-            mmap(resourceName) = bytes
+            resources(resourceName) = bytes
             Some(bytes)
           case Failure(err) =>
             log(s"Error getting resource '$resourceName': $err")
