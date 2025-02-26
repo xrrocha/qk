@@ -44,6 +44,7 @@ case class WebServer(
         .let: value =>
           if value == "" then indexFile
           else value
+
     // Refuse to run on no indexFile present
     if (path == indexFile && !resources.contains(indexFile)) then
       require(
@@ -51,10 +52,14 @@ case class WebServer(
         s"Can't read index file '$indexFile'"
       )
 
+    val ext = extension(path)
+
+    // TODO Actually handle *.qk!
+
     val (bytes, mimeType, httpCode) =
       getResource(path) match
         case Some(bytes) =>
-          val mimeType = MimeTypes(extension(path))
+          val mimeType = MimeTypes(ext)
             .getOrElse("application/octet-stream")
           (bytes, mimeType, 200)
         case None =>
@@ -66,6 +71,9 @@ case class WebServer(
       out.write(bytes)
       out.flush()
   end handle
+
+  def qk[A](path: String, compile: (String) => A): A =
+    ???
 
   private val resources = MMap[String, Array[Byte]]()
 
@@ -84,15 +92,14 @@ case class WebServer(
             None
   end getResource
 
-  def extension(filename: String): String =
-    filename.substring(filename.lastIndexOf('.') + 1)
-
   // TODO
   def log(msg: String) = println(msg)
 end WebServer
 
 object WebServer:
   val defaultIndex = "index.html"
+
+  val defaultExtensions = Set("qk", "yml", "yaml")
 
   @main
   def main(configFilename: String) =
@@ -117,8 +124,6 @@ object WebServer:
                   Thread: () =>
                     println("Shutting down...")
                     webServer.stop()
-
-  val defaultExtensions = Set("qk", "yml", "yaml")
 
   def paramMapFrom(queryString: String) =
     queryString
