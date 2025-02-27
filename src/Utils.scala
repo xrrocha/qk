@@ -1,12 +1,17 @@
 package qk
 
 import Utils.*
+import java.io.{FileNotFoundException, InputStream}
 import scala.util.{Try, Using}
 
 object Utils:
 
   def extension(filename: String): String =
-    filename.substring(filename.lastIndexOf('.') + 1)
+    filename
+      .lastIndexOf('.')
+      .let: pos =>
+        if pos < 0 then ""
+        else filename.substring(pos + 1)
 
   implicit class KLike[T](t: T):
     def let[R](f: T => R): R = f(t)
@@ -20,12 +25,16 @@ object Utils:
     s.trim().split("\\s+").mkString(" ")
 
   def readResource(resourceName: String): Try[Array[Byte]] =
-    val is =
-      Thread
+    openResource(resourceName).flatMap(Using(_)(_.readAllBytes()))
+  end readResource
+
+  def openResource(resourceName: String): Try[InputStream] =
+    Try:
+      val is = Thread
         .currentThread()
         .getContextClassLoader()
         .getResourceAsStream(resourceName)
-    require(is != null, s"No such resource: $resourceName")
-    Using(is): is =>
-      is.readAllBytes()
+      if is != null then is
+      else throw FileNotFoundException(s"No such resource: $resourceName")
+  end openResource
 end Utils
