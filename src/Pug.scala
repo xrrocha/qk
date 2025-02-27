@@ -8,21 +8,21 @@ import org.graalvm.polyglot.*
 import scala.jdk.CollectionConverters.*
 
 object Pug:
-  def render(
-      templateText: String,
-      templateName: String,
-      model: Map[String, Any | Null]
-  ): String =
-    val config = PugConfiguration()
-    config.setExpressionHandler(GraalJsExpressionHandler())
+    def render(
+        templateText: String,
+        templateName: String,
+        model: Map[String, Any | Null]
+    ): String =
+        val config = PugConfiguration()
+        config.setExpressionHandler(GraalJsExpressionHandler())
 
-    val templateLoader = ReaderTemplateLoader(
-      StringReader(templateText),
-      templateName
-    )
-    config.setTemplateLoader(templateLoader)
+        val templateLoader = ReaderTemplateLoader(
+          StringReader(templateText),
+          templateName
+        )
+        config.setTemplateLoader(templateLoader)
 
-    val template = config.getTemplate(templateName)
+        val template = config.getTemplate(templateName)
 
-    config.renderTemplate(template, model.asJava)
+        config.renderTemplate(template, model.asJava)
 end Pug

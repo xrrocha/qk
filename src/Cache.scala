@@ -16,17 +16,18 @@ type Request = HttpExchange
 type Handler = Request => Array[Byte]
 
 case class Cache(compilers: Map[Extension, Compiler]):
-  private val cache = MMap[String, Payload]()
+    private val cache = MMap[String, Payload]()
 
-  def get(path: String): Try[Payload] =
-    def buildPayload =
-      readResource(path)
-        .flatMap: bytes =>
-          Try:
-            compilers.get(extension(path)) match
-              case None           => bytes
-              case Some(compiler) => compiler(String(bytes, "UTF-8"))
-        .get
-    Try(cache.getOrElseUpdate(path, buildPayload))
-  end get
+    def get(path: String): Try[Payload] =
+        def buildPayload =
+            readResource(path)
+                .flatMap: bytes =>
+                    Try:
+                        compilers.get(extension(path)) match
+                            case None => bytes
+                            case Some(compiler) =>
+                                compiler(String(bytes, "UTF-8"))
+                .get
+        Try(cache.getOrElseUpdate(path, buildPayload))
+    end get
 end Cache

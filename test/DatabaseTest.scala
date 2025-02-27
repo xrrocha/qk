@@ -5,7 +5,7 @@ import Database.executeQuery
 import scala.util.{Failure, Success, Try, Using}
 
 class DatabaseTest extends munit.FunSuite:
-  val initScript = """
+    val initScript = """
     create table dept (
       deptno integer     not null primary key,
       dname  varchar(14) not null,
@@ -46,104 +46,104 @@ class DatabaseTest extends munit.FunSuite:
            (7934, 'MILLER', 'CLERK', 7782, '2012-01-23', 6500, null, 10);
   """
 
-  val database = Database(
-    driverClass = "org.h2.Driver",
-    url = "jdbc:h2:mem:test",
-    userName = "sa",
-    initScript = Some(initScript)
-  )
+    val database = Database(
+      driverClass = "org.h2.Driver",
+      url = "jdbc:h2:mem:test",
+      userName = "sa",
+      initScript = Some(initScript)
+    )
 
-  test("Executes parameterized query"):
-    val sql = """
+    test("Executes parameterized query"):
+        val sql = """
       SELECT COUNT(*) AS count
       FROM   emp
       WHERE  deptno = ?
     """
-    val result = executeQuery(sql, List(10))
-    assertEquals(result.size, 1)
-    assertEquals(
-      result,
-      List(Map("count" -> 3))
-    )
+        val result = executeQuery(sql, List(10))
+        assertEquals(result.size, 1)
+        assertEquals(
+          result,
+          List(Map("count" -> 3))
+        )
 
-  test("Executes non-parameterized query"):
-    val sql = """
+    test("Executes non-parameterized query"):
+        val sql = """
       SELECT COUNT(*) AS count
       FROM   emp
     """
-    val result = executeQuery(sql)
-    assertEquals(result.size, 1)
-    assertEquals(
-      result,
-      List(Map("count" -> 14))
-    )
+        val result = executeQuery(sql)
+        assertEquals(result.size, 1)
+        assertEquals(
+          result,
+          List(Map("count" -> 14))
+        )
 
-  test("Runs action given a connection"):
-    database.run: connection =>
-      val sql = """
+    test("Runs action given a connection"):
+        database.run: connection =>
+            val sql = """
         SELECT COUNT(*) AS count
         FROM   dept
       """
-      val result = executeQuery(sql)
-      assertEquals(result.size, 1)
-      assertEquals(
-        result,
-        List(Map("count" -> 4))
-      )
+            val result = executeQuery(sql)
+            assertEquals(result.size, 1)
+            assertEquals(
+              result,
+              List(Map("count" -> 4))
+            )
 
-  test("Executes name-parameterized query"):
+    test("Executes name-parameterized query"):
 
-    database.run: connection =>
-      val sql = """
+        database.run: connection =>
+            val sql = """
         SELECT COUNT(*) AS count
         FROM   emp
         WHERE  deptno = :deptno
            OR  empno = :empno
       """
-      val result = connection
-        .executeQuery(
-          sql,
-          Map[String, Any | Null](
-            "empno" -> 7839,
-            "deptno" -> 20
-          )
-        )
-        .get
-      assertEquals(result.size, 1)
-      assertEquals(
-        result,
-        List(Map("count" -> 5))
-      )
+            val result = connection
+                .executeQuery(
+                  sql,
+                  Map[String, Any | Null](
+                    "empno" -> 7839,
+                    "deptno" -> 20
+                  )
+                )
+                .get
+            assertEquals(result.size, 1)
+            assertEquals(
+              result,
+              List(Map("count" -> 5))
+            )
 
-  test("Validates param names in parameterized sql"):
-    val result = Using(database.connect()): connection =>
-      connection
-        .executeQuery(
-          """
+    test("Validates param names in parameterized sql"):
+        val result = Using(database.connect()): connection =>
+            connection
+                .executeQuery(
+                  """
             SELECT *
             FROM   emp
             WHERE  empno  = :empno
                OR  deptno = :deptno
                OR  sal    > :sal
           """,
-          Map("deptno" -> 10)
+                  Map("deptno" -> 10)
+                )
+                .get
+        assert(result.isFailure)
+        assertEquals(
+          result.failed.get.getMessage(),
+          "requirement failed: Missing parameter names: [empno, sal]"
         )
-        .get
-    assert(result.isFailure)
-    assertEquals(
-      result.failed.get.getMessage(),
-      "requirement failed: Missing parameter names: [empno, sal]"
-    )
 
-  def executeQuery(
-      sql: String,
-      params: List[Any | Null] = List.empty
-  ): List[Map[String, Any | Null]] =
-    val tryResult = Using(database.connect()): connection =>
-      val result = connection.executeQuery(sql, params)
-      assert(result.isSuccess)
-      result.get
-    tryResult.get
-  end executeQuery
+    def executeQuery(
+        sql: String,
+        params: List[Any | Null] = List.empty
+    ): List[Map[String, Any | Null]] =
+        val tryResult = Using(database.connect()): connection =>
+            val result = connection.executeQuery(sql, params)
+            assert(result.isSuccess)
+            result.get
+        tryResult.get
+    end executeQuery
 
 end DatabaseTest
