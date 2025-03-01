@@ -12,9 +12,11 @@ class JavascriptTest extends munit.FunSuite:
           "name" -> Seq("KING", "O'HARA")
         )
 
-        val objScript = s"""({
+        val objScript = """({
             |deptno: parseInt(param('deptno')),
-            |names:  params('name').join(', ')
+            |names:  params('name')
+            |            .map(name => `'${name.replace("'", "''")}'`)
+            |            .join(', ')
             |})""".stripMargin
 
         val context = Javascript.createContext()
@@ -22,7 +24,7 @@ class JavascriptTest extends munit.FunSuite:
 
         assertEquals(
           reqObj.toString(),
-          """{deptno: 10, names: "KING, O'HARA"}"""
+          """{deptno: 10, names: "'KING', 'O''HARA'"}"""
         )
         
         val bindings = context.getBindings("js")
@@ -30,7 +32,7 @@ class JavascriptTest extends munit.FunSuite:
           bindings.putMember(mn, reqObj.getMember(mn))
 
         assertEquals(context.eval("js", "deptno").asInt(), 10)
-        assertEquals(context.eval("js", "names").asString(), "KING, O'HARA")
+        assertEquals(context.eval("js", "names").asString(), "'KING', 'O''HARA'")
 
         val sql = """
           |SELECT   *
@@ -39,6 +41,6 @@ class JavascriptTest extends munit.FunSuite:
           |   OR    ename IN (${names})
           |ORDER BY ename
         """.stripMargin
-        // TODO Account for quote escaping
-        println(escapeQuote(context.eval("js", s"`$sql`").asString()))
+        // TODO Account for "`" quote escaping in sql
+        println(context.eval("js", s"`$sql`").asString())
 end JavascriptTest
