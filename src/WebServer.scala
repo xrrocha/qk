@@ -2,14 +2,21 @@ package qk
 
 import Utils.*
 import collection.mutable.Map as MMap
-import com.sun.net.httpserver.HttpExchange
-import com.sun.net.httpserver.HttpHandler
-import com.sun.net.httpserver.HttpServer
-import java.io.FileInputStream
+import com.sun.net.httpserver.*
+import java.io.*
 import java.net.InetSocketAddress
 import org.virtuslab.yaml.*
-import scala.util.{Failure, Success, Using}
-import scala.annotation.threadUnsafe
+import scala.util.*
+
+case class PageConfig(
+    req: Script,
+    sql: Script,
+    pug: Script
+) derives YamlCodec
+end PageConfig
+
+object PageConfig:
+end PageConfig
 
 case class WebServer(
     port: Int,
@@ -20,6 +27,14 @@ case class WebServer(
     private var server = createServer()
 
     private val indexFiles = Set("", indexFile)
+
+    /*
+    getResource(indexFile) match
+        case Some(_) =>
+        case None =>
+            // TODO 400/404 or something...
+            log(s"Can't read file '$indexFile'")
+    */
 
     def start() =
         server.start()
@@ -44,13 +59,6 @@ case class WebServer(
                 .let: value =>
                     if value == "" then indexFile
                     else value
-
-        // TODO Yield 404 on non-existent indexfile
-        if (path == indexFile && !resources.contains(indexFile)) then
-            require(
-              getResource(indexFile).isDefined,
-              s"Can't read index file '$indexFile'"
-            )
 
         val ext = extension(path)
 
@@ -92,8 +100,7 @@ case class WebServer(
                         None
     end getResource
 
-    // TODO
-    def log(msg: String) = println(msg)
+    // TODO Add real logging
 end WebServer
 
 object WebServer:
@@ -107,22 +114,20 @@ object WebServer:
             _.readAllBytes()
                 .let(String(_, "UTF-8"))
                 .let(_.as[WebServer])
-                .also(println)
                 .also: result =>
                     result match
                         case Left(err) =>
-                            println(s"Error launching webserver: $err")
+                            log(s"Error launching webserver: $err")
                             sys.exit(1)
                         case Right(webServer) =>
                             webServer.start()
-                            println(
-                              s"QK listening on port ${webServer.port}. Ctrl-C to stop"
-                            )
+                            log(s"QK listening on port ${webServer.port}. ")
+                            log("Ctrl-C to stop")
                             Runtime
                                 .getRuntime()
                                 .addShutdownHook:
                                     Thread: () =>
-                                        println("Shutting down...")
+                                        log("Shutting down...")
                                         webServer.stop()
 
     def paramMapFrom(queryString: String) =
@@ -142,3 +147,5 @@ object WebServer:
     val symbol = """^\p{Alpha}[\p{Alnum}_]*$""".r
     def isSymbol(s: String) = symbol.matches(s)
 end WebServer
+
+def log(msg: String) = println(msg)

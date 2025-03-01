@@ -10,7 +10,7 @@ object Javascript:
         context: Context,
         objScript: String,
         paramMap: Map[String, Seq[String]]
-    ): Any =
+    ): Value =
 
         val paramsObj = paramMap.toSeq
             .map: p =>
@@ -23,14 +23,16 @@ object Javascript:
             .mkString("{\n  ", ",\n  ", "\n}")
 
         val paramDefs = s"""
-      const paramValues = $paramsObj;
-      function param(name) { return paramValues[name][0]; }
-      function params(name) { return paramValues[name]; }
-    """
+          |const paramValues = $paramsObj;
+          |function param(name) { return paramValues[name][0]; }
+          |function params(name) { return paramValues[name]; }
+        """.stripMargin
 
         context.eval("js", s"$paramDefs\n$objScript")
     end buildReqObj
 
     val quotes = """[\\'"]""".r
     def escape(s: String) = quotes.replaceAllIn(s, """\\$0""")
+
+    def escapeQuote(s: String) = s.replace("'", "''")
 end Javascript
