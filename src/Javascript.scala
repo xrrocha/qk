@@ -16,7 +16,7 @@ object Javascript:
             .map: p =>
                 val name = p._1
                 val value = p._2
-                    .map(escape)
+                    .map(escapeJsQuote)
                     .map(v => s"'$v'")
                     .mkString("[", ", ", "]")
                 s"$name: $value"
@@ -32,7 +32,7 @@ object Javascript:
     end buildReqObj
 
     val quotes = """[\\'"]""".r
-    def escape(s: String) = quotes.replaceAllIn(s, """\\$0""")
+    def escapeJsQuote(s: String) = quotes.replaceAllIn(s, """\\$0""")
 
-    def escapeQuote(s: String) = s.replace("'", "''")
+    def escapeJsQuoteSqlQuote(s: String) = s.replace("'", "''")
 end Javascript

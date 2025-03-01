@@ -9,13 +9,13 @@ class JavascriptTest extends munit.FunSuite:
 
         val paramMap = Map(
           "deptno" -> Seq("0010"),
-          "name" -> Seq("KING", "O'HARA")
+          "name" -> Seq("KING", "O'HARA", "D'ANNUNZIO")
         )
 
         val objScript = """({
             |deptno: parseInt(param('deptno')),
             |names:  params('name')
-            |            .map(name => `'${name.replace("'", "''")}'`)
+            |            .map(name => `'${name.replace(/'/g, "''")}'`)
             |            .join(', ')
             |})""".stripMargin
 
@@ -26,7 +26,7 @@ class JavascriptTest extends munit.FunSuite:
 
         assertEquals(
           reqObj.toString(),
-          """{deptno: 10, names: "'KING', 'O''HARA'"}"""
+          """{deptno: 10, names: "'KING', 'O''HARA', 'D''ANNUNZIO'"}"""
         )
         
         val bindings = context.getBindings("js")
@@ -34,7 +34,7 @@ class JavascriptTest extends munit.FunSuite:
           bindings.putMember(mn, reqObj.getMember(mn))
 
 
-        assertEquals(eval("names").asString(), "'KING', 'O''HARA'")
+        assertEquals(eval("names").asString(), "'KING', 'O''HARA', 'D''ANNUNZIO'")
 
         val sql = """
           |SELECT   *
@@ -50,7 +50,7 @@ class JavascriptTest extends munit.FunSuite:
           |SELECT   *
           |FROM     emp
           |WHERE    deptno = :deptno
-          |   OR    ename IN ('KING', 'O''HARA')
+          |   OR    ename IN ('KING', 'O''HARA', 'D''ANNUNZIO')
           |ORDER BY ename
           """.stripMargin.trim,
           sqlStr.trim
