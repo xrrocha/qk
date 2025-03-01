@@ -20,6 +20,8 @@ class JavascriptTest extends munit.FunSuite:
             |})""".stripMargin
 
         val context = Javascript.createContext()
+        val eval = context.eval("js", _)
+
         val reqObj = Javascript.buildReqObj(context, objScript, paramMap)
 
         assertEquals(
@@ -31,8 +33,8 @@ class JavascriptTest extends munit.FunSuite:
         reqObj.getMemberKeys().forEach:mn =>
           bindings.putMember(mn, reqObj.getMember(mn))
 
-        assertEquals(context.eval("js", "deptno").asInt(), 10)
-        assertEquals(context.eval("js", "names").asString(), "'KING', 'O''HARA'")
+
+        assertEquals(eval("names").asString(), "'KING', 'O''HARA'")
 
         val sql = """
           |SELECT   *
@@ -41,6 +43,16 @@ class JavascriptTest extends munit.FunSuite:
           |   OR    ename IN (${names})
           |ORDER BY ename
         """.stripMargin
+        val sqlStr = eval(s"`$sql`").asString()
+
         // TODO Account for "`" quote escaping in sql
-        println(context.eval("js", s"`$sql`").asString())
+        assertEquals("""
+          |SELECT   *
+          |FROM     emp
+          |WHERE    deptno = :deptno
+          |   OR    ename IN ('KING', 'O''HARA')
+          |ORDER BY ename
+          """.stripMargin.trim,
+          sqlStr.trim
+        )
 end JavascriptTest
