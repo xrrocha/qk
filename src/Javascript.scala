@@ -33,6 +33,4 @@ object Javascript:
 
     val quotes = """[\\'"]""".r
     def escapeJsQuote(s: String) = quotes.replaceAllIn(s, """\\$0""")
-
-    def escapeJsQuoteSqlQuote(s: String) = s.replace("'", "''")
 end Javascript

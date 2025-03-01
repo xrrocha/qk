@@ -33,6 +33,7 @@ end Database
 
 object Database:
 
+    // TODO More sophisticated parsing is needed, valid colons may wreak havoc!
     val parameterName = """:[_\p{IsLatin}][_\p{IsLatin}\d]+""".r
     def parseParameters(sql: String): (String, List[String]) =
         parameterName.replaceAllIn(sql, "?") ->
@@ -51,7 +52,9 @@ object Database:
                 val md = ps.getParameterMetaData()
                 require(
                   md.getParameterCount() == params.size,
-                  s"Parameter count mismatch: ${md.getParameterCount}, not ${params.size}"
+                  s"Parameter count mismatch: " +
+                  s"got ${md.getParameterCount}, " +
+                  s"expected ${params.size}"
                 )
 
                 params.indices.foreach: i =>
@@ -91,4 +94,10 @@ object Database:
                 val (sql, paramValues) = p
                 conn.executeQuery(sql, paramValues)
         end executeQuery
+
+    // TODO Account for ` not followed by $ (so as to not clash w/js)
+    def escapeSqlQuote(s: String) =
+        s
+            .replace("'", "''")
+            .replace("`", "\"")
 end Database

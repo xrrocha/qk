@@ -32,8 +32,6 @@ class JavascriptTest extends munit.FunSuite:
         val bindings = context.getBindings("js")
         reqObj.getMemberKeys().forEach:mn =>
           bindings.putMember(mn, reqObj.getMember(mn))
-
-
         assertEquals(eval("names").asString(), "'KING', 'O''HARA', 'D''ANNUNZIO'")
 
         val sql = """
@@ -45,7 +43,6 @@ class JavascriptTest extends munit.FunSuite:
         """.stripMargin
         val sqlStr = eval(s"`$sql`").asString()
 
-        // TODO Account for "`" quote escaping in sql
         assertEquals("""
           |SELECT   *
           |FROM     emp

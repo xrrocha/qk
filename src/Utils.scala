@@ -37,4 +37,8 @@ object Utils:
     implicit class KLike[T](t: T):
         def let[R](f: T => R): R = f(t)
         def also(f: T => Unit): T = { f(t); t }
+    end KLike
+
+    extension (s: String)
+        def normalize: String = Utils.normalizeSpace(s)
 end Utils
